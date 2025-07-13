@@ -1,0 +1,31 @@
+{
+  "email": {
+    "enabled": true,
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "username": "your-email@gmail.com",
+    "password": "your-app-password",
+    "from_email": "fraud-alerts@yourcompany.com",
+    "recipients": ["security-team@yourcompany.com", "fraud-analyst@yourcompany.com"]
+  },
+  "sms": {
+    "enabled": true,
+    "provider": "twilio",
+    "account_sid": "your-twilio-account-sid",
+    "auth_token": "your-twilio-auth-token",
+    "from_number": "+1234567890",
+    "to_numbers": ["+1987654321", "+1122334455"]
+  },
+  "webhook": {
+    "enabled": true,
+    "url": "https://your-company.com/api/fraud-alerts",
+    "headers": {
+      "Authorization": "Bearer your-api-key",
+      "Content-Type": "application/json"
+    }
+  },
+  "alert_thresholds": {
+    "high": 0.8,
+    "medium": 0.6
+  }
+}

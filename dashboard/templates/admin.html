@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Fraud Detection System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .nav-pills .nav-link.active {
+            background-color: #0d6efd;
+        }
+        .tab-content {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Fraud Detection System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('admin_panel') }}">Admin Panel</a>
+                    </li>
+                </ul>
+                <span class="navbar-text me-3">
+                    Welcome, {{ username }}
+                </span>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-light">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Admin Panel</h1>
+        <p class="text-muted">System management and configuration</p>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Navigation</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
+                            <button class="nav-link active" id="v-pills-system-tab" data-bs-toggle="pill" data-bs-target="#v-pills-system" type="button" role="tab">System Status</button>
+                            <button class="nav-link" id="v-pills-data-tab" data-bs-toggle="pill" data-bs-target="#v-pills-data" type="button" role="tab">Data Management</button>
+                            <button class="nav-link" id="v-pills-models-tab" data-bs-toggle="pill" data-bs-target="#v-pills-models" type="button" role="tab">Model Management</button>
+                            <button class="nav-link" id="v-pills-users-tab" data-bs-toggle="pill" data-bs-target="#v-pills-users" type="button" role="tab">User Management</button>
+                            <button class="nav-link" id="v-pills-settings-tab" data-bs-toggle="pill" data-bs-target="#v-pills-settings" type="button" role="tab">Settings</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="tab-content" id="v-pills-tabContent">
+                            <!-- System Status Tab -->
+                            <div class="tab-pane fade show active" id="v-pills-system" role="tabpanel">
+                                <h4>System Status</h4>
+                                <div class="row mt-4" id="system-status">
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <h5 class="card-title">API Status</h5>
+                                                <p class="card-text" id="api-status">Loading...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Database Status</h5>
+                                                <p class="card-text" id="db-status">Loading...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Models Status</h5>
+                                                <p class="card-text" id="models-status">Loading...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Last Transaction</h5>
+                                                <p class="card-text" id="last-transaction">Loading...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <button id="refresh-status" class="btn btn-primary">Refresh Status</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Data Management Tab -->
+                            <div class="tab-pane fade" id="v-pills-data" role="tabpanel">
+                                <h4>Data Management</h4>
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5>Generate Sample Data</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="generate-data-form">
+                                            <div class="mb-3">
+                                                <label for="days" class="form-label">Number of Days</label>
+                                                <input type="number" class="form-control" id="days" value="30" min="1" max="365">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="transactions" class="form-label">Transactions per Day</label>
+                                                <input type="number" class="form-control" id="transactions" value="100" min="1" max="1000">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Generate Data</button>
+                                        </form>
+                                        <div id="generate-result" class="mt-3"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5>Transaction Browser</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="fraud-only">
+                                                <label class="form-check-label" for="fraud-only">
+                                                    Show fraud transactions only
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Amount</th>
+                                                        <th>Type</th>
+                                                        <th>Country</th>
+                                                        <th>Timestamp</th>
+                                                        <th>Fraud</th>
+                                                        <th>Score</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="transactions-table">
+                                                    <tr>
+                                                        <td colspan="7" class="text-center">Loading transactions...</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <button id="prev-page" class="btn btn-sm btn-outline-primary" disabled>Previous</button>
+                                            <span id="page-info">Page 1</span>
+                                            <button id="next-page" class="btn btn-sm btn-outline-primary">Next</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Model Management Tab -->
+                            <div class="tab-pane fade" id="v-pills-models" role="tabpanel">
+                                <h4>Model Management</h4>
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5>Model Information</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="card bg-light">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">Isolation Forest</h5>
+                                                        <p><strong>Status:</strong> <span class="badge bg-success">Active</span></p>
+                                                        <p><strong>Last Trained:</strong> 2023-06-15</p>
+                                                        <p><strong>Accuracy:</strong> 85.2%</p>
+                                                        <button class="btn btn-sm btn-primary">Retrain Model</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="card bg-light">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">Autoencoder</h5>
+                                                        <p><strong>Status:</strong> <span class="badge bg-success">Active</span></p>
+                                                        <p><strong>Last Trained:</strong> 2023-06-15</p>
+                                                        <p><strong>Accuracy:</strong> 82.7%</p>
+                                                        <button class="btn btn-sm btn-primary">Retrain Model</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-4">
+                                            <h5>Model Parameters</h5>
+                                            <form>
+                                                <div class="mb-3">
+                                                    <label for="fraud-threshold" class="form-label">Fraud Score Threshold</label>
+                                                    <input type="range" class="form-range" id="fraud-threshold" min="0" max="1" step="0.05" value="0.6">
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>0.0</span>
+                                                        <span id="threshold-value">0.6</span>
+                                                        <span>1.0</span>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="ensemble-weight" class="form-label">Ensemble Weights</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Isolation Forest</span>
+                                                        <input type="number" class="form-control" id="if-weight" value="0.5" min="0" max="1" step="0.1">
+                                                        <span class="input-group-text">Autoencoder</span>
+                                                        <input type="number" class="form-control" id="ae-weight" value="0.5" min="0" max="1" step="0.1">
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary">Save Parameters</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- User Management Tab -->
+                            <div class="tab-pane fade" id="v-pills-users" role="tabpanel">
+                                <h4>User Management</h4>
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5>Users</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Username</th>
+                                                        <th>Email</th>
+                                                        <th>Role</th>
+                                                        <th>Created</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>admin</td>
+                                                        <td>admin@example.com</td>
+                                                        <td><span class="badge bg-primary">Admin</span></td>
+                                                        <td>2023-06-01</td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>user1</td>
+                                                        <td>user1@example.com</td>
+                                                        <td><span class="badge bg-secondary">User</span></td>
+                                                        <td>2023-06-05</td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addUserModal">Add User</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Settings Tab -->
+                            <div class="tab-pane fade" id="v-pills-settings" role="tabpanel">
+                                <h4>System Settings</h4>
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5>Alert Settings</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form>
+                                            <div class="mb-3">
+                                                <label class="form-label">Alert Methods</label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="email-alerts" checked>
+                                                    <label class="form-check-label" for="email-alerts">
+                                                        Email Alerts
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="sms-alerts">
+                                                    <label class="form-check-label" for="sms-alerts">
+                                                        SMS Alerts
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="dashboard-alerts" checked>
+                                                    <label class="form-check-label" for="dashboard-alerts">
+                                                        Dashboard Alerts
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="alert-email" class="form-label">Alert Email</label>
+                                                <input type="email" class="form-control" id="alert-email" value="alerts@example.com">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="alert-phone" class="form-label">Alert Phone Number</label>
+                                                <input type="tel" class="form-control" id="alert-phone" placeholder="+1234567890">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Save Settings</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5>API Settings</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form>
+                                            <div class="mb-3">
+                                                <label for="api-key" class="form-label">API Key</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="api-key" value="fd7a8b3c5e2f1d0a9e7b4c1d5f2e3a6b" readonly>
+                                                    <button class="btn btn-outline-secondary" type="button">Regenerate</button>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="rate-limit" class="form-label">Rate Limit (requests per minute)</label>
+                                                <input type="number" class="form-control" id="rate-limit" value="100" min="10" max="1000">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Save Settings</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-user-form">
+                        <div class="mb-3">
+                            <label for="new-username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="new-username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="new-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new-password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="new-password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new-role" class="form-label">Role</label>
+                            <select class="form-select" id="new-role">
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="save-user">Add User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // System Status
+        function fetchSystemStatus() {
+            fetch('/api/system-status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('api-status').innerHTML = 
+                        `<span class="badge bg-success">Online</span>`;
+                    document.getElementById('db-status').innerHTML = 
+                        `<span class="badge bg-success">Connected</span>`;
+                    document.getElementById('models-status').innerHTML = 
+                        data.models_loaded ? 
+                        `<span class="badge bg-success">Loaded</span>` : 
+                        `<span class="badge bg-danger">Not Loaded</span>`;
+                    
+                    const lastTx = data.last_transaction ? 
+                        new Date(data.last_transaction).toLocaleString() : 
+                        'No transactions yet';
+                    document.getElementById('last-transaction').textContent = lastTx;
+                })
+                .catch(error => {
+                    console.error('Error fetching system status:', error);
+                    document.getElementById('api-status').innerHTML = 
+                        `<span class="badge bg-danger">Error</span>`;
+                    document.getElementById('db-status').innerHTML = 
+                        `<span class="badge bg-danger">Error</span>`;
+                    document.getElementById('models-status').innerHTML = 
+                        `<span class="badge bg-danger">Error</span>`;
+                    document.getElementById('last-transaction').textContent = 'Error fetching data';
+                });
+        }
+
+        // Generate Sample Data
+        document.getElementById('generate-data-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const days = document.getElementById('days').value;
+            const transactions = document.getElementById('transactions').value;
+            const resultDiv = document.getElementById('generate-result');
+            
+            resultDiv.innerHTML = '<div class="alert alert-info">Generating data...</div>';
+            
+            fetch('/api/generate-sample-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    days: parseInt(days),
+                    transactions_per_day: parseInt(transactions)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            });
+        });
+
+        // Transaction Browser
+        let currentPage = 1;
+        const pageSize = 10;
+        let fraudOnly = false;
+
+        function loadTransactions() {
+            const offset = (currentPage - 1) * pageSize;
+            const tableBody = document.getElementById('transactions-table');
+            
+            tableBody.innerHTML = '<tr><td colspan="7" class="text-center">Loading transactions...</td></tr>';
+            
+            fetch(`/api/transactions?limit=${pageSize}&offset=${offset}&fraud_only=${fraudOnly}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.transactions.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No transactions found</td></tr>';
+                        return;
+                    }
+                    
+                    tableBody.innerHTML = '';
+                    data.transactions.forEach(tx => {
+                        const row = document.createElement('tr');
+                        if (tx.is_fraud) {
+                            row.classList.add('table-danger');
+                        }
+                        
+                        row.innerHTML = `
+                            <td>${tx.transaction_id}</td>
+                            <td>$${tx.amount.toFixed(2)}</td>
+                            <td>${tx.transaction_type || 'N/A'}</td>
+                            <td>${tx.country || 'N/A'}</td>
+                            <td>${new Date(tx.timestamp).toLocaleString()}</td>
+                            <td>${tx.is_fraud ? 
+                                '<span class="badge bg-danger">Yes</span>' : 
+                                '<span class="badge bg-success">No</span>'}</td>
+                            <td>${(tx.fraud_score * 100).toFixed(1)}%</td>
+                        `;
+                        
+                        tableBody.appendChild(row);
+                    });
+                    
+                    // Update pagination
+                    document.getElementById('page-info').textContent = `Page ${currentPage}`;
+                    document.getElementById('prev-page').disabled = currentPage === 1;
+                    document.getElementById('next-page').disabled = data.transactions.length < pageSize;
+                })
+                .catch(error => {
+                    tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${error.message}</td></tr>`;
+                });
+        }
+
+        document.getElementById('prev-page').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadTransactions();
+            }
+        });
+
+        document.getElementById('next-page').addEventListener('click', function() {
+            currentPage++;
+            loadTransactions();
+        });
+
+        document.getElementById('fraud-only').addEventListener('change', function() {
+            fraudOnly = this.checked;
+            currentPage = 1;
+            loadTransactions();
+        });
+
+        // Threshold slider
+        document.getElementById('fraud-threshold').addEventListener('input', function() {
+            document.getElementById('threshold-value').textContent = this.value;
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchSystemStatus();
+            loadTransactions();
+            
+            // Refresh status button
+            document.getElementById('refresh-status').addEventListener('click', fetchSystemStatus);
+            
+            // Add user button
+            document.getElementById('save-user').addEventListener('click', function() {
+                // In a real system, this would send data to the server
+                alert('User added successfully!');
+                document.getElementById('addUserModal').querySelector('.btn-close').click();
+            });
+        });
+    </script>
+</body>
+</html>
